@@ -1,4 +1,5 @@
-/build/
-/node_modules/
-/.idea/
-./ext
+/.idea
+/build
+/ext
+node_modules
+package-lock.json
