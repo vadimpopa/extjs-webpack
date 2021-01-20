@@ -1,4 +1,4 @@
-export default Ext.define('CARA.core.field.Combobox', {
+export default Ext.define('App.core.field.Combobox', {
     extend: 'Ext.field.ComboBox',
 
     clearable: true,

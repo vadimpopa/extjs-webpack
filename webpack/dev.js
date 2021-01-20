@@ -6,12 +6,8 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-// webpack plugins
-const DashboardPlugin = require('webpack-dashboard/plugin');
-
 // config files
-const common = require('./common.js');
-const pkg = require('../package.json');
+const commonConfig = require('./common.js');
 const settings = require('./settings.js');
 
 // Configure the webpack-dev-server
@@ -23,99 +19,55 @@ const configureDevServer = () => {
         https: !!parseInt(settings.devServerConfig.https()),
         disableHostCheck: true,
         hot: true,
-        overlay: true,
+        overlay: {
+            warnings: true,
+            errors: true,
+        },
         watchContentBase: true,
         watchOptions: {
-            poll: !!parseInt(settings.devServerConfig.poll()),
-            ignored: /node_modules/,
+            aggregateTimeout: 200,
+            poll: 1000,
+            ignored: ['cypress/**', 'node_modules/**'],
         },
         headers: {
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
         },
+        // Add your proxy here in case you need
+        // proxy: {
+        //     'api': {
+        //         target: '',
+        //         ws: true,
+        //         secure: false,
+        //         cookieDomainRewrite: 'localhost',
+        //         debug: true,
+        //     },
+        // },
     };
 };
 
-// Configure Image loader
-const configureImageLoader = () => {
-    return {
-        test: /\.(png|jpe?g|gif|svg|webp)$/i,
-        use: [
-            {
-                loader: 'file-loader',
-                options: {
-                    name: 'img/[name].[hash].[ext]'
-                }
-            }
-        ]
-    };
-};
-
-// Configure the Postcss loader
-const configurePostcssLoader = () => {
-    return {
-        test: /\.(pcss|css)$/,
-        use: [
-            {
-                loader: 'style-loader',
-            },
-            {
-                loader: 'css-loader',
-                options: {
-                    url: false,
-                    importLoaders: 2,
-                    sourceMap: true,
-                    modules: {
-                        mode: 'local',
-                        exportGlobals: true,
-                        localIdentName: '[path][name]__[local]--[hash:base64:5]',
-                        context: path.resolve(__dirname, settings.paths.src.css),
-                        hashPrefix: 'cara',
-                    },
-                },
-            },
-            {
-                loader: 'resolve-url-loader'
-            },
-            {
-                loader: 'postcss-loader',
-                options: {
-                    sourceMap: true,
-                    config: {
-                        path: path.resolve(__dirname, './postcss.config.js'),
-                    },
-                },
-            }
-        ]
-    };
-};
+const {
+    configureAppCssLoaders,
+    configureExtCssLoaders,
+} = require('./css.config.js');
 
 // Development module exports
-module.exports = merge(
-    common.modernConfig,
-    {
-        output: {
-            filename: path.join('./js', '[name].bundle.js'),
-            publicPath: settings.devServerConfig.public() + '/',
-        },
-        mode: 'development',
-        devtool: 'inline-source-map',
-        devServer: configureDevServer(),
-        module: {
-            rules: [
-                configurePostcssLoader(),
-                configureImageLoader(),
-            ],
-        },
-        plugins: [
-            new HtmlWebpackPlugin(
-                {
-                    template: 'index.html',
-                    filename: 'index.html',
-                    inject: true,
-                }
-            ),
-            new webpack.HotModuleReplacementPlugin(),
-            new DashboardPlugin(),
-        ],
-    }
-);
+module.exports = merge(commonConfig(false), {
+    output: {
+        filename: path.join('./js', '[name].bundle.js'),
+        publicPath: settings.devServerConfig.public() + '/',
+    },
+    mode: 'development',
+    devtool: '(none)',
+    devServer: configureDevServer(),
+    module: {
+        rules: [...configureAppCssLoaders(), ...configureExtCssLoaders()],
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'index.html',
+            filename: 'index.html',
+            inject: true,
+        }),
+        new webpack.HotModuleReplacementPlugin(),
+    ],
+});

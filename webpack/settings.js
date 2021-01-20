@@ -3,100 +3,69 @@
 // node modules
 require('dotenv').config();
 
+const ExtTheme = 'theme-triton';
+
 // Webpack settings exports
 // noinspection WebpackConfigHighlighting
 module.exports = {
-    name: "Example Project",
-    copyright: "Example Company, Inc.",
+    name: 'App',
+    copyright: '',
+    ExtTheme,
     paths: {
-        src: {
-            base: "../src/",
-            css: "../src/",
-            js: "../src/"
-        },
+        src: '../src/',
+        Ext: '../ext/build/',
+        ExtTheme: `../ext/build/modern/${ExtTheme}/`,
         dist: {
-            base: "../build/",
-            clean: [
-                '**/*',
-            ]
-        }
+            base: '../build/',
+            clean: ['**/*'],
+        },
     },
     urls: {
-        publicPath: () => process.env.PUBLIC_PATH || "./",
+        publicPath: () => process.env.PUBLIC_PATH || './',
     },
     vars: {
-        cssName: "styles"
+        cssName: 'styles',
     },
     entries: {
-        "app": "app.js"
+        Ext: 'ext.js',
+        overrides: 'overrides/index.js',
+        app: 'app.js',
     },
     babelLoaderConfig: {
-        exclude: [
-            /(node_modules)/
+        exclude: [/(node_modules)/, /(ext-)/],
+    },
+    copyExt: {
+        patterns: [
+            {
+                from: 'resources',
+                to: 'resources',
+            },
         ],
     },
-    // copyWebpackConfig: [
-    //     {
-    //         from: "../src/js/workbox-catch-handler.js",
-    //         to: "js/[name].[ext]"
-    //     }
-    // ],
-    copyExt: [
-        {
-            from: "ext/build/ext-modern-all.js",
-            to: "ext/ext-modern-all.js",
-            toType: 'file',
-        },
-        {
-            from: "ext/build/modern/theme-triton/theme-triton.js",
-            to: "ext/theme-triton.js",
-            toType: 'file',
-        },
-        {
-            from: "ext/build/modern/theme-triton/resources/theme-triton-all.css",
-            to: "ext/resources/theme-triton-all.css",
-            toType: 'file',
-        },
-        {
-            from: "ext/build/modern/theme-triton/resources/theme-triton-all_1.css",
-            to: "ext/resources/theme-triton-all_1.css",
-            toType: 'file',
-        },
-        {
-            from: "ext/build/modern/theme-triton/resources/theme-triton-all_2.css",
-            to: "ext/resources/theme-triton-all_2.css",
-            toType: 'file',
-        }
-    ],
     devServerConfig: {
-        public: () => process.env.DEVSERVER_PUBLIC || "http://localhost:8080",
-        host: () => process.env.DEVSERVER_HOST || "localhost",
+        public: () => process.env.DEVSERVER_PUBLIC || 'http://localhost:8080',
+        host: () => process.env.DEVSERVER_HOST || 'localhost',
         poll: () => process.env.DEVSERVER_POLL || false,
         port: () => process.env.DEVSERVER_PORT || 8080,
         https: () => process.env.DEVSERVER_HTTPS || false,
     },
     manifestConfig: {
-        basePath: ""
+        basePath: '',
     },
     purgeCssConfig: {
-        whitelist: [
-            "./src/css/components/**/*.{css}"
-        ],
+        whitelist: ['./src/css/components/**/*.{css}'],
         whitelistPatterns: [],
-        extensions: [
-            "html",
-            "js"
-        ]
+        extensions: ['html', 'js'],
     },
     saveRemoteFileConfig: [
         {
-            url: "https://www.google-analytics.com/analytics.js",
-            filepath: "js/analytics.js"
-        }
+            url: 'https://www.google-analytics.com/analytics.js',
+            filepath: 'js/analytics.js',
+        },
     ],
     webappConfig: {
-        logo: "./resources/img/favicon-src.png",
-        prefix: "img/favicons/"
+        logo: './resources/img/favicon-src.png',
+        prefix: 'img/favicons/',
     },
     // workboxConfig: {
     //     swDest: "../sw.js",

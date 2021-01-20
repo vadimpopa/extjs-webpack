@@ -18,7 +18,7 @@ export default Ext.define('App.view.Main', {
 
     items: [
         {
-            xclass: 'CARA.core.field.Combobox',
+            xclass: 'App.core.field.Combobox',
             width: 400,
             margin: 5,
             label: 'Choose State',

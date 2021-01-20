@@ -17,11 +17,17 @@ On Windows:
 
     > mklink /D ext ..\..\sdks\ext-6.5.3
 
+As alternative, in case you need a custom ExtJS build (like upgrading FontAwesome to Pro), 
+in the ExtJS release directory `ext-6.5.3/` run `sench package build` to build ExtJS files. Then after build, 
+you can copy in `project/ext/build` the `ext-6.5.3/build/modern`, `ext-6.5.3/build/packages`, 
+and `ext-6.5.3/build/ext-modern-all.js`, `-debug.js`.
+files into your project.
+
 Then run `npm run build`:
 
     $ npm run build
 
-    > app@1.0.0 build ..../extjs-webpack
+    > app@2.0.0 build ..../extjs-webpack
     > webpack
 
     Hash: 514ce3b213ceda0e6dbe
@@ -35,27 +41,6 @@ Then run `npm run build`:
     [./src/view/Main.js] 245 bytes {main} [built]
 
 That's all. Now load in browser.
-
-## Linking It Up
-
-I've added the theme build to the index file:
-
-    <head>
-        ...
-        <link href="ext/build/modern/theme-material/resources/theme-material-all.css"
-            rel="stylesheet"></link>
-    </head>
-
-I added the Ext JS build and theme override just before the webpack `bundle.js`:
-
-    <body>
-        <script src="ext/build/ext-modern-all-debug.js"></script>
-        <script src="ext/build/modern/theme-material/theme-material-debug.js"></script>
-        <script src="dist/bundle.js"></script>
-    </body>
-
-For a production build, I'd swap the `*-debug.js` files for the optimized/minified
-files.
 
 ## Going Forward
 
