@@ -23,9 +23,9 @@ you can copy in `project/ext/build` the `ext-6.5.3/build/modern`, `ext-6.5.3/bui
 and `ext-6.5.3/build/ext-modern-all.js`, `-debug.js`.
 files into your project.
 
-Then run `npm run build`:
+Then run `yarn run build`:
 
-    $ npm run build
+    $ yarn run build
 
     > app@2.0.0 build ..../extjs-webpack
     > webpack

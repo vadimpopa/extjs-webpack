@@ -23,7 +23,6 @@ const zopfli = require('@gfx/zopfli');
 // //const PurgecssPlugin = require('purgecss-webpack-plugin');
 // const CreateSymlinkPlugin = require('create-symlink-webpack-plugin');
 // const CompressionPlugin = require('compression-webpack-plugin');
-// const ImageminWebpWebpackPlugin = require('imagemin-webp-webpack-plugin');
 // const SaveRemoteFilePlugin = require('save-remote-file-webpack-plugin');
 // //const WebappWebpackPlugin = require('webapp-webpack-plugin');
 // //const WhitelisterPlugin = require('purgecss-whitelister');
