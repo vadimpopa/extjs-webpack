@@ -1,20 +1,21 @@
-const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-    configureAppCssLoaders() {
+    configureCssLoaders() {
         return [
             {
                 test: /\.((c|sa|sc)ss)$/i,
-                exclude: [/ext/],
+                exclude: [/ext\/build/],
                 use: [
-                    {
-                        loader: 'style-loader',
-                    },
+                    // fallback to style-loader in development
+                    process.env.NODE_ENV !== 'production'
+                        ? 'style-loader'
+                        : MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {
                             url: false,
-                            importLoaders: 2,
+                            importLoaders: 1,
                             sourceMap: true,
                             modules: {
                                 auto: true,
@@ -25,34 +26,22 @@ module.exports = {
                             },
                         },
                     },
-                    'resolve-url-loader',
-                    'sass-loader',
-                ],
-            },
-            {
-                test: /\.(png|jpe?g|gif|webp)$/i,
-                use: [
                     {
-                        loader: 'file-loader',
+                        loader: 'sass-loader',
                         options: {
-                            name: '[name].[contenthash].[ext]',
-                            publicPath(url) {
-                                const fileName = path.basename(url);
-                                return `/resources/images/${fileName}`;
-                            },
+                            sourceMap: true,
                         },
                     },
                 ],
             },
-        ];
-    },
-    configureExtCssLoaders() {
-        return [
             {
                 test: /\.(css)$/,
                 include: [/ext/],
                 use: [
-                    'style-loader',
+                    // fallback to style-loader in development
+                    process.env.NODE_ENV !== 'production'
+                        ? 'style-loader'
+                        : MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {
@@ -62,27 +51,20 @@ module.exports = {
                 ],
             },
             {
-                test: /\.(ttf|svg|eot|woff2?)$/i,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            name: '[name].[ext]',
-                            publicPath: (url, resourcePath, context) => {
-                                // `resourcePath` is original absolute path to asset,
-                                // /Users/{user}}/Documents/App/ext/....
-
-                                // `context` is directory where stored asset (`rootContext`) or `context` option,
-                                // /Users/{user}/Documents/App
-                                const relativePath = path.relative(
-                                    context,
-                                    resourcePath
-                                );
-                                return `/${relativePath}`;
-                            },
-                        },
-                    },
-                ],
+                test: /\.(woff|woff2|svg|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'resources/fonts/[name].[contenthash][ext]',
+                    publicPath: '../../',
+                },
+            },
+            {
+                test: /\.(png|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'resources/images/[name].[contenthash][ext]',
+                    publicPath: '../../',
+                },
             },
         ];
     },

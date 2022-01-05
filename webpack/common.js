@@ -4,14 +4,13 @@ const path = require('path');
 
 // webpack plugins
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
 const WebpackNotifierPlugin = require('webpack-notifier');
 
 // config files
 const pkg = require('../package.json');
 const settings = require('./settings.js');
+const { configureESBuildLoader } = require('./esbuild.config.js');
 const { paths } = settings;
-const { configureBabelLoader } = require('./babel.config.js');
 
 // Configure Entries
 const configureEntries = () => {
@@ -22,17 +21,8 @@ const configureEntries = () => {
 
     return entries;
 };
-// Configure Manifest
-const configureManifest = (fileName) => {
-    return {
-        fileName: fileName,
-        basePath: settings.manifestConfig.basePath,
-        map: (file) => {
-            file.name = file.name.replace(/(\.[a-f0-9]{32})(\..*)$/, '$2');
-            return file;
-        },
-    };
-};
+
+const PreloadWebpackPlugin = require('@vue/preload-webpack-plugin');
 
 // Common module exports
 // noinspection WebpackConfigHighlighting
@@ -40,45 +30,44 @@ module.exports = (isProd) => {
     return {
         name: pkg.name,
         entry: configureEntries(),
+        target: 'web',
         output: {
             path: path.resolve(__dirname, paths.dist.base),
-            publicPath: settings.urls.publicPath(),
+            publicPath: './',
         },
         plugins: [
-            new ManifestPlugin(configureManifest('manifest.json')),
+            new PreloadWebpackPlugin({
+                rel: 'preload',
+                as: 'font',
+                include: 'allAssets',
+                fileWhitelist: [
+                    /resources\/fonts(\/.*).(woff2?|ttf|woff)(\?.*)?$/i,
+                ],
+                fileBlacklist: [/codicon.ttf/],
+            }),
             new WebpackNotifierPlugin({
                 title: 'Webpack',
                 excludeWarnings: true,
                 alwaysNotify: true,
             }),
-            //new CopyWebpackPlugin(settings.copyExt)
+            new CopyWebpackPlugin({
+                patterns: settings.copyFiles,
+            }),
         ],
         resolve: {
             alias: {
                 '@': path.resolve(__dirname, settings.paths.src),
-                libs: path.resolve(__dirname, '../libs'),
                 Ext: path.resolve(
                     __dirname,
                     `${paths.Ext}ext-modern-all${isProd ? '' : '-debug'}.js`
                 ),
-                ExtTheme: path.resolve(
-                    __dirname,
-                    paths.ExtTheme + `/${settings.ExtTheme}.js`
-                ),
-                ExtThemeCSS: path.resolve(
-                    __dirname,
-                    `${paths.ExtTheme}/resources/${settings.ExtTheme}-all${
-                        isProd ? '' : '-debug'
-                    }.css`
-                ),
+            },
+            fallback: {
+                fs: false,
             },
         },
         module: {
-            rules: [
-                configureBabelLoader(
-                    Object.values(pkg.browserslist.modernBrowsers)
-                ),
-            ],
+            rules: [configureESBuildLoader()],
         },
     };
 };

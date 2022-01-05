@@ -1,27 +1,36 @@
-import styles from './Main.css';
-
+import './Main.scss';
 import '../core/field/Combobox';
 
 const Panel = Ext.Panel;
-const superCls = Panel.prototype;
+const superclass = Panel.prototype;
 
-export default Ext.define('App.view.Main', {
+export default Ext.define('MyApp.view.Main', {
     extend: Panel,
 
-    title: 'App',
+    title: MyApp.t('appTitle'),
 
-    html: `<div class="${styles.testClass}">Left Panel, 1/3rd of total size></div>`,
+    html: `<div class="my-class-from-sass">Left Panel, 1/3rd of total size></div>`,
 
     constructor(...args) {
-        superCls.constructor.call(this, ...args);
+        superclass.constructor.call(this, ...args);
     },
 
     items: [
         {
+            xtype: 'checkbox',
+            boxLabel: MyApp.t('wantDarkTheme'),
+            listeners: {
+                change(field, isDarkMode) {
+                    debugger
+                    MyApp.app.setStateItem('theme-dark-mode', isDarkMode);
+                }
+            }
+        },
+        {
             xclass: 'App.core.field.Combobox',
             width: 400,
             margin: 5,
-            label: 'Choose State',
+            label: 'Choose Language',
             queryMode: 'local',
             displayField: 'name',
             valueField: 'abbr',

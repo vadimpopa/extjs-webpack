@@ -1,68 +1,97 @@
 // webpack.dev.js - developmental builds
 
 // node modules
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // config files
 const commonConfig = require('./common.js');
-const settings = require('./settings.js');
+const { devServerConfig } = require('./settings.js');
 
 // Configure the webpack-dev-server
 const configureDevServer = () => {
     return {
-        public: settings.devServerConfig.public(),
-        host: settings.devServerConfig.host(),
-        port: settings.devServerConfig.port(),
-        https: !!parseInt(settings.devServerConfig.https()),
-        disableHostCheck: true,
-        hot: true,
-        overlay: {
-            warnings: true,
-            errors: true,
+        host: devServerConfig.host(),
+        port: devServerConfig.port(),
+        https: !!parseInt(devServerConfig.https()),
+        hot: false,
+        client: {
+            overlay: {
+                warnings: true,
+                errors: true,
+            },
         },
-        watchContentBase: true,
-        watchOptions: {
-            aggregateTimeout: 200,
-            poll: 1000,
-            ignored: ['cypress/**', 'node_modules/**'],
+        liveReload: true,
+        static: {
+            directory: path.resolve(__dirname, '../'),
+            publicPath: './',
         },
         headers: {
             'Access-Control-Allow-Origin': '*',
         },
-        // Add your proxy here in case you need
+
+        // Use it to run a proxy
         // proxy: {
-        //     'api': {
-        //         target: '',
+        //     '/api': {
+        //         target: devServerConfig.remoteServerUrl,
         //         ws: true,
         //         secure: false,
-        //         cookieDomainRewrite: 'localhost',
+        //         cookieDomainRewrite: false,
+        //         cookiePathRewrite: {
+        //             '/path/': '/',
+        //             '/path': '/',
+        //         },
         //         debug: true,
-        //     },
+        //         changeOrigin: true,
+        //         onProxyRes: (proxyRes, request, response) => {
+        //             const setCookieHeader = proxyRes.headers['set-cookie'];
+        //
+        //             //remove "Secure" option as such cookie will not be accepted when locally using HTTP
+        //             if (setCookieHeader && setCookieHeader.length > 0) {
+        //                 let sessionCookie = setCookieHeader[0];
+        //
+        //                 if (/secure/i.test(sessionCookie)) {
+        //                     sessionCookie = sessionCookie.replace(
+        //                         /\s*Secure;/i,
+        //                         ''
+        //                     );
+        //                     console.log(
+        //                         `Rewriting set-cookie header to: ${sessionCookie}`
+        //                     );
+        //                     proxyRes.headers['set-cookie'] = [sessionCookie];
+        //                 }
+        //             }
+        //         },
+        //     }
         // },
     };
 };
 
-const {
-    configureAppCssLoaders,
-    configureExtCssLoaders,
-} = require('./css.config.js');
+const { configureCssLoaders } = require('./css.config.js');
+
+console.log(process.env.NODE_ENV);
 
 // Development module exports
 module.exports = merge(commonConfig(false), {
     output: {
-        filename: path.join('./js', '[name].bundle.js'),
-        publicPath: settings.devServerConfig.public() + '/',
+        filename: '[name].bundle.js',
+        publicPath: 'auto',
+        clean: true,
     },
     mode: 'development',
-    devtool: '(none)',
+    devtool: false,
     devServer: configureDevServer(),
     module: {
-        rules: [...configureAppCssLoaders(), ...configureExtCssLoaders()],
+        rules: [...configureCssLoaders()],
     },
     plugins: [
+        new webpack.DefinePlugin({
+            WEBPACK_APP_VERSION: JSON.stringify(
+                require('../package.json').version
+            ),
+        }),
         new HtmlWebpackPlugin({
             template: 'index.html',
             filename: 'index.html',

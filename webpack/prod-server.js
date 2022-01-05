@@ -4,15 +4,18 @@ const settings = require('./settings.js');
 module.exports = {
     mode: 'production',
     devServer: {
-        contentBase: path.resolve(__dirname, settings.paths.dist.base),
-        compress: true,
+        host: settings.devServerConfig.host(),
+        static: [
+            // Simple example
+            path.resolve(__dirname, settings.paths.dist.base),
+        ],
         port: 9000,
         headers: {
             'Access-Control-Allow-Origin': '*',
         },
+        // Use it for proxy
         // proxy: {
-        //     'api': {
-        //         // Add your proxy here in case you need
+        //     '/path/api': {
         //         target: '',
         //         ws: true,
         //         secure: false,
